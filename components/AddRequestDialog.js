@@ -1,6 +1,7 @@
 const AddRequestDialog = ({ isOpen, onClose, onSuccess }) => {
     const [step, setStep] = React.useState(1);
     const [isSubmitting, setIsSubmitting] = React.useState(false);
+    const [agreed, setAgreed] = React.useState(false);
     const [formData, setFormData] = React.useState({
         specialty: '',
         current_region: '',
@@ -13,6 +14,7 @@ const AddRequestDialog = ({ isOpen, onClose, onSuccess }) => {
     React.useEffect(() => {
         if (isOpen) {
             setStep(1);
+            setAgreed(false);
             setFormData({
                 specialty: '',
                 current_region: '',
@@ -67,6 +69,7 @@ const AddRequestDialog = ({ isOpen, onClose, onSuccess }) => {
             case 3: return true; // Hospital is optional
             case 4: return formData.desired_regions.length > 0;
             case 5: return !!formData.phone && formData.phone.length >= 9;
+            case 6: return agreed;
             default: return true;
         }
     };
@@ -76,7 +79,7 @@ const AddRequestDialog = ({ isOpen, onClose, onSuccess }) => {
             
             {/* Progress indicator */}
             <div className="flex gap-1 mb-5">
-                {[1,2,3,4,5].map(i => (
+                {[1,2,3,4,5,6].map(i => (
                     <div 
                         key={i} 
                         className={`h-1 flex-1 rounded-full transition-colors ${i <= step ? 'bg-primary' : 'bg-gray-100'}`}
@@ -189,6 +192,36 @@ const AddRequestDialog = ({ isOpen, onClose, onSuccess }) => {
                         </div>
                     </div>
                 )}
+
+                {/* Step 6: Pledge & Agreement */}
+                {step === 6 && (
+                    <div className="space-y-4 animate-in fade-in slide-in-from-left-2 duration-300">
+                        <div className="bg-emerald-50/50 border border-emerald-100 rounded-2xl p-4 space-y-3">
+                            <div className="flex items-center gap-2 text-emerald-800 font-bold text-[13px]">
+                                <div className="icon-shield text-base"></div>
+                                <span>تعهد التبادل الوظيفي وإخلاء المسؤولية</span>
+                            </div>
+                            <ul className="space-y-2 text-[11.5px] text-emerald-950/80 list-decimal list-inside leading-relaxed">
+                                <li><strong>يُمنع منعاً باتاً</strong> طلب أو قبول أي مبالغ مالية مقابل خدمة التبادل.</li>
+                                <li>تقديم أو وساطة طلبات التبادل بمقابل مالي يخالف شروطنا وسيتم حظر الحساب فوراً والملاحقة القانونية.</li>
+                                <li>المنصة تقدم خدمة مجانية بالكامل لتسهيل التبادل الوظيفي للكوادر الطبية فقط.</li>
+                                <li>أقر بأن كافة البيانات المدخلة صحيحة ومطابقة للواقع وتخصني شخصياً.</li>
+                            </ul>
+                        </div>
+
+                        <label className="flex items-start gap-2.5 p-3 border border-gray-100 rounded-xl bg-white hover:bg-gray-50/30 cursor-pointer select-none transition-all">
+                            <input 
+                                type="checkbox" 
+                                className="mt-0.5 rounded text-primary focus:ring-primary border-gray-300"
+                                checked={agreed}
+                                onChange={(e) => setAgreed(e.target.checked)}
+                            />
+                            <span className="text-[12px] font-semibold text-gray-700 leading-tight">
+                                أتعهد بكافة الشروط المذكورة أعلاه وأقر بصحة البيانات
+                            </span>
+                        </label>
+                    </div>
+                )}
             </div>
 
             {/* Actions */}
@@ -199,12 +232,12 @@ const AddRequestDialog = ({ isOpen, onClose, onSuccess }) => {
                     </Button>
                 )}
                 
-                {step < 5 ? (
+                {step < 6 ? (
                     canProceed() && (
                         <Button 
                             variant="primary" 
                             size="sm"
-                            className={`${step === 1 ? 'w-full' : 'flex-[2] w-full'} rounded-xl font-bold animate-in fade-in zoom-in duration-200 shadow-sm`} 
+                            className={`${step === 1 ? 'w-full' : 'flex-[2] w-full'} rounded-xl font-bold animate-in fade-in zoom-in duration-200 shadow-sm border-0`} 
                             onClick={handleNext}
                         >
                             التالي
@@ -215,7 +248,7 @@ const AddRequestDialog = ({ isOpen, onClose, onSuccess }) => {
                         <Button 
                             variant="primary" 
                             size="sm"
-                            className="flex-[2] w-full rounded-xl font-bold animate-in fade-in zoom-in duration-200 shadow-sm" 
+                            className="flex-[2] w-full rounded-xl font-bold animate-in fade-in zoom-in duration-200 shadow-sm border-0 bg-primary hover:bg-primary-dark" 
                             onClick={handleSubmit}
                             disabled={isSubmitting}
                         >
@@ -224,7 +257,7 @@ const AddRequestDialog = ({ isOpen, onClose, onSuccess }) => {
                                     <div className="icon-loader animate-spin text-sm"></div>
                                     جاري النشر
                                 </span>
-                            ) : 'انشر الطلب'}
+                            ) : 'تأكيد وإرسال الطلب'}
                         </Button>
                     )
                 )}
